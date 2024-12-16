@@ -74,59 +74,121 @@
 
 
 
-import React, { useState } from 'react';
-import './App.css';
+// import React, { useState } from 'react';
+// import './App.css';
+
+// function App() {
+//   const [input, setInput] = useState('');
+//   const [memory, setMemory] = useState(0);
+
+//   // Handle button clicks
+//   const handleButtonClick = (value) => {
+//     setInput((prevInput) => prevInput + value);
+//   };
+
+//   // Handle clear input
+//   const handleClear = () => {
+//     setInput('');
+//   };
+
+//   // Handle calculation
+//   const handleCalculate = () => {
+//     try {
+//       setInput(eval(input).toString());
+//     } catch {
+//       setInput('Error');
+//     }
+//   };
+//   return (
+//     <div className="calculator">
+//       <div className="display">
+//         <input type="text" value={input} readOnly />
+//       </div>
+//       <div className="buttons">
+//         <button onClick={() => handleButtonClick('7')}>7</button>
+//         <button onClick={() => handleButtonClick('8')}>8</button>
+//         <button onClick={() => handleButtonClick('9')}>9</button>
+//         <button onClick={() => handleButtonClick('/')}>/</button>
+//         <button onClick={() => handleButtonClick('4')}>4</button>
+//         <button onClick={() => handleButtonClick('5')}>5</button>
+//         <button onClick={() => handleButtonClick('6')}>6</button>
+//         <button onClick={() => handleButtonClick('*')}>*</button>
+//         <button onClick={() => handleButtonClick('1')}>1</button>
+//         <button onClick={() => handleButtonClick('2')}>2</button>
+//         <button onClick={() => handleButtonClick('3')}>3</button>
+//         <button onClick={() => handleButtonClick('-')}>-</button>
+//         <button onClick={() => handleButtonClick('0')}>0</button>
+//         <button onClick={() => handleButtonClick('.')}>.</button>
+//         <button onClick={handleCalculate}>=</button>
+//         <button onClick={() => handleButtonClick('+')}>+</button>
+//         <button onClick={handleClear}>C</button>
+
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState } from "react";
 
 function App() {
-  const [input, setInput] = useState('');
-  const [memory, setMemory] = useState(0);
+  const [items, setItems] = useState([]);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [editIndex, setEditIndex] = useState(null);
 
-  // Handle button clicks
-  const handleButtonClick = (value) => {
-    setInput((prevInput) => prevInput + value);
+  const addItem = () => {
+    if (!name || !price || !quantity) return;
+    const newItem = { name, price: +price, quantity: +quantity };
+    const updatedItems = [...items];
+    editIndex !== null ? (updatedItems[editIndex] = newItem) : updatedItems.push(newItem);
+    setItems(updatedItems);
+    setName(""); setPrice(""); setQuantity(""); setEditIndex(null);
   };
 
-  // Handle clear input
-  const handleClear = () => {
-    setInput('');
+  const deleteItem = (index) => setItems(items.filter((_, i) => i !== index));
+
+  const editItem = (index) => {
+    const item = items[index];
+    setName(item.name); setPrice(item.price); setQuantity(item.quantity);
+    setEditIndex(index);
   };
 
-  // Handle calculation
-  const handleCalculate = () => {
-    try {
-      setInput(eval(input).toString());
-    } catch {
-      setInput('Error');
-    }
-  };
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  
- 
   return (
-    <div className="calculator">
-      <div className="display">
-        <input type="text" value={input} readOnly />
-      </div>
-      <div className="buttons">
-        <button onClick={() => handleButtonClick('7')}>7</button>
-        <button onClick={() => handleButtonClick('8')}>8</button>
-        <button onClick={() => handleButtonClick('9')}>9</button>
-        <button onClick={() => handleButtonClick('/')}>/</button>
-        <button onClick={() => handleButtonClick('4')}>4</button>
-        <button onClick={() => handleButtonClick('5')}>5</button>
-        <button onClick={() => handleButtonClick('6')}>6</button>
-        <button onClick={() => handleButtonClick('*')}>*</button>
-        <button onClick={() => handleButtonClick('1')}>1</button>
-        <button onClick={() => handleButtonClick('2')}>2</button>
-        <button onClick={() => handleButtonClick('3')}>3</button>
-        <button onClick={() => handleButtonClick('-')}>-</button>
-        <button onClick={() => handleButtonClick('0')}>0</button>
-        <button onClick={() => handleButtonClick('.')}>.</button>
-        <button onClick={handleCalculate}>=</button>
-        <button onClick={() => handleButtonClick('+')}>+</button>
-        <button onClick={handleClear}>C</button>
+    <div>
+      <h2>Shopping List</h2>
+      <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <input placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} type="number" />
+      <input placeholder="Quantity" value={quantity} onChange={(e) => setQuantity(e.target.value)} type="number" />
+      <button onClick={addItem}>{editIndex !== null ? "Update" : "Add"}</button>
 
-      </div>
+      <ul>
+        {items.map((item, index) => (
+          <li key={index}>
+            {item.name} - Rs {item.price} x {item.quantity} = Rs {item.price * item.quantity}
+            <button onClick={() => editItem(index)}>Edit</button>
+            <button onClick={() => deleteItem(index)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+      <h3>Total: Rs {total}</h3>
     </div>
   );
 }
