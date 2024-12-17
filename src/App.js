@@ -71,6 +71,14 @@
 
 
 
+// calculator
+
+
+
+
+
+
+
 
 
 
@@ -139,56 +147,137 @@
 
 
 
+// Shopping List
 
 
 
 
-import React, { useState } from "react";
+
+
+
+
+
+// import React, { useState } from "react";
+
+// function App() {
+//   const [items, setItems] = useState([]), [name, setName] = useState(""), [rate, setRate] = useState(""), [qty, setQty] = useState(""), [editIndex, setEditIndex] = useState(null);
+
+//   const addItem = () => {
+//     const newItem = { id: Date.now(), name, rate: +rate, qty: +qty };
+//     setItems(editIndex !== null ? items.map((item, i) => (i === editIndex ? newItem : item)) : [...items, newItem]);
+//     setName(""); setRate(""); setQty(""); setEditIndex(null);
+//   };
+
+//   return (
+//     <div style={{ margin: "20px" }}>
+//       <h2>Shopping List</h2>
+//       {[setName, setRate, setQty].map((fn, i) => (
+//         <input key={i} placeholder={["Name", "Rate", "Quantity"][i]} value={[name, rate, qty][i]} onChange={(e) => fn(e.target.value)} type={i > 0 ? "number" : "text"} />
+//       ))}
+//       <button onClick={addItem}>{editIndex !== null ? "Update" : "Add"}</button>
+//       <table border="1" style={{ marginTop: "10px", width: "100%", textAlign: "center" }}>
+//         <thead><tr>{["#", "Name", "Rate", "Qty", "Total", "Actions"].map((h, i) => <th key={i}>{h}</th>)}</tr></thead>
+//         <tbody>
+//           {items.map((item, index) => (
+//             <tr key={item.id}>
+//               {[index + 1, item.name, item.rate, item.qty, item.rate * item.qty].map((val, i) => <td key={i}>{val}</td>)}
+//               <td>
+//                 <button onClick={() => (setName(item.name), setRate(item.rate), setQty(item.qty), setEditIndex(index))}>Edit</button>
+//                 <button onClick={() => setItems(items.filter((_, i) => i !== index))}>Delete</button>
+//               </td>
+//             </tr>
+//           ))}
+//         </tbody>
+//         <tfoot>
+//           <tr>
+//             <td colSpan="4" style={{ textAlign: "right", fontWeight: "bold" }}>Grand Total:</td>
+//             <td style={{ fontWeight: "bold" }}>{items.reduce((sum, { rate, qty }) => sum + rate * qty, 0)}</td>
+//             <td></td>
+//           </tr>
+//         </tfoot>
+//       </table>
+//     </div>
+//   );
+// }
+
+// export default App;
+
+
+
+
+
+
+
+
+
+
+// pokemon Api
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
 
 function App() {
-  const [items, setItems] = useState([]);
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [editIndex, setEditIndex] = useState(null);
+  const [pokemons, setPokemons] = useState([]);
 
-  const addItem = () => {
-    if (!name || !price || !quantity) return;
-    const newItem = { name, price: +price, quantity: +quantity };
-    const updatedItems = [...items];
-    editIndex !== null ? (updatedItems[editIndex] = newItem) : updatedItems.push(newItem);
-    setItems(updatedItems);
-    setName(""); setPrice(""); setQuantity(""); setEditIndex(null);
+  // Fetching the first 20 Pokémon and their details
+  useEffect(() => {
+    fetch('https://pokeapi.co/api/v2/pokemon?limit=20')
+      .then(response => response.json())
+      .then(data => {
+        const pokemonDetailsPromises = data.results.map(pokemon =>
+          fetch(pokemon.url).then(res => res.json())
+        );
+        Promise.all(pokemonDetailsPromises)
+          .then(details => setPokemons(details));
+      })
+      .catch(error => console.error('Error fetching Pokémon:', error));
+  }, []);
+
+  const toggleDetails = (pokemonName) => {
+    setPokemons(pokemons.map(pokemon => 
+      pokemon.name === pokemonName ? { ...pokemon, showDetails: !pokemon.showDetails } : pokemon
+    ));
   };
-
-  const deleteItem = (index) => setItems(items.filter((_, i) => i !== index));
-
-  const editItem = (index) => {
-    const item = items[index];
-    setName(item.name); setPrice(item.price); setQuantity(item.quantity);
-    setEditIndex(index);
-  };
-
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div>
-      <h2>Shopping List</h2>
-      <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <input placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} type="number" />
-      <input placeholder="Quantity" value={quantity} onChange={(e) => setQuantity(e.target.value)} type="number" />
-      <button onClick={addItem}>{editIndex !== null ? "Update" : "Add"}</button>
-
-      <ul>
-        {items.map((item, index) => (
-          <li key={index}>
-            {item.name} - Rs {item.price} x {item.quantity} = Rs {item.price * item.quantity}
-            <button onClick={() => editItem(index)}>Edit</button>
-            <button onClick={() => deleteItem(index)}>Delete</button>
-          </li>
+      <h1>Pokémon List</h1>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+        {pokemons.map(pokemon => (
+          <div key={pokemon.name} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '5px', width: '150px', textAlign: 'center' }}>
+            <h2
+              style={{ cursor: 'pointer', color: '#3d7dca' }}
+              onClick={() => toggleDetails(pokemon.name)}
+            >
+              {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
+            </h2>
+            
+            {/* Show details only if showDetails is true */}
+            {pokemon.showDetails && (
+              <div>
+                <img
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+                  alt={pokemon.name}
+                  style={{ width: '100px', height: '100px' }}
+                />
+                <p><strong>Types:</strong> {pokemon.types.map(type => type.type.name).join(', ')}</p>
+                <p><strong>Abilities:</strong> {pokemon.abilities.map(ability => ability.ability.name).join(', ')}</p>
+                <p><strong>Stats:</strong></p>
+                <ul>
+                  {pokemon.stats.map(stat => (
+                    <li key={stat.stat.name}>{stat.stat.name}: {stat.base_stat}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         ))}
-      </ul>
-      <h3>Total: Rs {total}</h3>
+      </div>
     </div>
   );
 }
